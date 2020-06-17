@@ -44,8 +44,10 @@ class HomeActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.findNavController()
+
         //Setup bottom navigation view with nav controller for dynamic navigation
         bottomNavigation.setupWithNavController(navController = navController)
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
             toolbar.onDestinationChanged(destination.id, destination.label as String)
             when (destination.id) {
