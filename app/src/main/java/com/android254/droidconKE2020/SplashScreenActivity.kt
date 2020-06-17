@@ -1,13 +1,13 @@
 package com.android254.droidconKE2020
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import com.android254.droidconKE2020.core.PreferencesImpl
+import androidx.appcompat.app.AppCompatActivity
+import com.android254.droidconKE2020.core.Preferences
 import com.example.android_animation.AndroidAnimation
 import com.example.android_animation.enums.Easing
 import kotlinx.android.synthetic.main.activity_splash_screen.*
+import org.koin.android.ext.android.inject
 
 class SplashScreenActivity : AppCompatActivity() {
 
@@ -18,13 +18,13 @@ class SplashScreenActivity : AppCompatActivity() {
     private val MAX_TRANSLATION_X = 310f
     private val MAX_TRANSLATION_Y = 170f
 
-    private lateinit var preferencesImpl: PreferencesImpl
+    private val sharedPrefs: Preferences by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
-        preferencesImpl = PreferencesImpl(this)
-        val showSplashScreen = preferencesImpl.getShowSplashScreen()
+
+        val showSplashScreen = sharedPrefs.getShowSplashScreen()
         if (showSplashScreen) startAnimation() else navigateToHome()
     }
 
@@ -59,7 +59,7 @@ class SplashScreenActivity : AppCompatActivity() {
             scaleY((MIN_SCALE + .2f), 1f, MAX_SCALE, 1f)
             alpha(1f)
             onAnimationEnd {
-                preferencesImpl.setShowSplashScreen(false)
+                sharedPrefs.setShowSplashScreen(false)
                 navigateToHome()
             }
             start()
