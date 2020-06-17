@@ -8,10 +8,7 @@ import com.android254.droidconKE2020.home.domain.Promotion
 import com.android254.droidconKE2020.home.domain.Session
 import com.android254.droidconKE2020.home.domain.Sponsor
 import com.android254.droidconKE2020.home.repositories.FakeSpeakerRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class HomeViewModel(
     private val promotionRepository: FakePromotionRepository,
@@ -30,7 +27,13 @@ class HomeViewModel(
     val activePromo get() = promotionRepository.activePromo
 
     fun checkForNewPromo() = homeViewModelScope.launch {
-        promotionRepository.checkForAvailablePromotions()
+        // Check for new promos after every minute
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                promotionRepository.checkForAvailablePromotions()
+                delay(60 * 1000)
+            }
+        }
     }
 
     /**

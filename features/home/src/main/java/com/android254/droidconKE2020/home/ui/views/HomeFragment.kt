@@ -69,14 +69,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun viewAllSessionsClicked() {
-        val action =
-            HomeFragmentDirections.actionHomeFragmentToSessionsFragment()
+        val action = HomeFragmentDirections.actionHomeFragmentToSessionsFragment()
         findNavController().navigate(action)
     }
 
     private fun viewAllSpeakersClicked() {
-        val action =
-            HomeFragmentDirections.actionHomeFragmentToSpeakersFragment()
+        val action = HomeFragmentDirections.actionHomeFragmentToSpeakersFragment()
         findNavController().navigate(action)
     }
 
@@ -101,6 +99,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showPromoCard() {
+        homeViewModel.checkForNewPromo()
+
         // Check for any available promos
         homeViewModel.activePromo.observe(viewLifecycleOwner, Observer { promo ->
             binding.promoImg.visibility = if (promo != null) View.VISIBLE else View.GONE
@@ -109,14 +109,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 binding.promoImg.setOnClickListener { launchBrowser(promo.webUrl) }
             }
         })
-
-        // Check for new promos after every minute
-//        CoroutineScope(Dispatchers.IO).launch {
-//            while (true) {
-//                homeViewModel.checkForNewPromo()
-//                delay(60 * 1000)
-//            }
-//        }
     }
 
     private fun showCallForSpeakersCard() {
@@ -174,78 +166,78 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         homeViewModel.retrieveSpeakerList()
         binding.viewSpeakersBtn.setOnClickListener { viewAllSpeakersClicked() }
 
-       /* val onSpeakerClicked: (Speaker) -> Unit = { onSpeakerClicked(it.id) }
-        val adapter = SpeakerAdapter(onSpeakerClicked)
-        binding.speakersList.adapter = adapter
-        binding.speakersList.addItemDecoration(HorizontalSpaceDecoration(30))
+        /* val onSpeakerClicked: (Speaker) -> Unit = { onSpeakerClicked(it.id) }
+         val adapter = SpeakerAdapter(onSpeakerClicked)
+         binding.speakersList.adapter = adapter
+         binding.speakersList.addItemDecoration(HorizontalSpaceDecoration(30))
 
-        homeViewModel.speakerList.observe(viewLifecycleOwner, Observer
-        { speakers ->
-            if (speakers == null) {
-                binding.speakersCountChip.visibility = View.GONE
+         homeViewModel.speakerList.observe(viewLifecycleOwner, Observer
+         { speakers ->
+             if (speakers == null) {
+                 binding.speakersCountChip.visibility = View.GONE
 
-                // ToDo: Show shimmer effect. No need to hide since this will always be available
-            } else {
-                binding.speakersCountChip.visibility = View.VISIBLE
-                val totalSpeakers = "+${speakers.size}"
-                binding.speakersCountChip.text = totalSpeakers
-                adapter.updateData(speakers)
-            }
-        })*/
+                 // ToDo: Show shimmer effect. No need to hide since this will always be available
+             } else {
+                 binding.speakersCountChip.visibility = View.VISIBLE
+                 val totalSpeakers = "+${speakers.size}"
+                 binding.speakersCountChip.text = totalSpeakers
+                 adapter.updateData(speakers)
+             }
+         })*/
     }
 
     private fun showSponsors() {
         homeViewModel.retrieveSponsors()
 
-      /*  binding.tvBecomeSponsor.setOnClickListener {
-            sendEmail(homeViewModel.becomeSponsorEmails, homeViewModel.becomeSponsorSubject)
-        }
+        /*  binding.tvBecomeSponsor.setOnClickListener {
+              sendEmail(homeViewModel.becomeSponsorEmails, homeViewModel.becomeSponsorSubject)
+          }
 
-        val onSponsorClicked: (Sponsor) -> Unit = { launchBrowser(it.website) }
+          val onSponsorClicked: (Sponsor) -> Unit = { launchBrowser(it.website) }
 
-        // ToDo: Merge two adapters to use a single list using MergeAdapter
-        val goldAdapter = GoldSponsorAdapter(onSponsorClicked)
-        binding.rvGoldSponsors.adapter = goldAdapter
-        binding.rvGoldSponsors.layoutManager = FlexboxLayoutManager(requireContext()).also {
-            it.flexDirection = FlexDirection.ROW
-            it.flexWrap = FlexWrap.WRAP
-            it.justifyContent = JustifyContent.SPACE_EVENLY
-        }
+          // ToDo: Merge two adapters to use a single list using MergeAdapter
+          val goldAdapter = GoldSponsorAdapter(onSponsorClicked)
+          binding.rvGoldSponsors.adapter = goldAdapter
+          binding.rvGoldSponsors.layoutManager = FlexboxLayoutManager(requireContext()).also {
+              it.flexDirection = FlexDirection.ROW
+              it.flexWrap = FlexWrap.WRAP
+              it.justifyContent = JustifyContent.SPACE_EVENLY
+          }
 
-        val otherAdapter = OtherSponsorAdapter(onSponsorClicked)
-        binding.rvOtherSponsors.adapter = otherAdapter
-        binding.rvOtherSponsors.layoutManager = FlexboxLayoutManager(requireContext()).also {
-            it.flexDirection = FlexDirection.ROW
-            it.flexWrap = FlexWrap.WRAP
-            it.justifyContent = JustifyContent.SPACE_EVENLY
-        }
+          val otherAdapter = OtherSponsorAdapter(onSponsorClicked)
+          binding.rvOtherSponsors.adapter = otherAdapter
+          binding.rvOtherSponsors.layoutManager = FlexboxLayoutManager(requireContext()).also {
+              it.flexDirection = FlexDirection.ROW
+              it.flexWrap = FlexWrap.WRAP
+              it.justifyContent = JustifyContent.SPACE_EVENLY
+          }
 
-        homeViewModel.sponsors.observe(viewLifecycleOwner, Observer { sponsors ->
-            sponsors?.let {
-                val goldSponsors = mutableListOf<Sponsor>()
-                val otherSponsors = mutableListOf<Sponsor>()
+          homeViewModel.sponsors.observe(viewLifecycleOwner, Observer { sponsors ->
+              sponsors?.let {
+                  val goldSponsors = mutableListOf<Sponsor>()
+                  val otherSponsors = mutableListOf<Sponsor>()
 
-                sponsors.forEach { if (it.isGold) goldSponsors.add(it) else otherSponsors.add(it) }
+                  sponsors.forEach { if (it.isGold) goldSponsors.add(it) else otherSponsors.add(it) }
 
-                goldAdapter.submitList(goldSponsors)
-                otherAdapter.submitList(otherSponsors)
-            }
-        })*/
+                  goldAdapter.submitList(goldSponsors)
+                  otherAdapter.submitList(otherSponsors)
+              }
+          })*/
     }
 
     private fun showOrganizers() {
         homeViewModel.retrieveOrganizerList()
 
-     /*   val adapter = OrganizerAdapter()
-        binding.organizersList.adapter = adapter
+        /*   val adapter = OrganizerAdapter()
+           binding.organizersList.adapter = adapter
 
-        homeViewModel.organizerList.observe(viewLifecycleOwner, Observer { organizers ->
-            if (organizers == null) {
-                // ToDo: Show shimmer effect. No need to hide since this will always be available
-            } else {
-                adapter.updateData(organizers)
-            }
-        })*/
+           homeViewModel.organizerList.observe(viewLifecycleOwner, Observer { organizers ->
+               if (organizers == null) {
+                   // ToDo: Show shimmer effect. No need to hide since this will always be available
+               } else {
+                   adapter.updateData(organizers)
+               }
+           })*/
     }
 
     override fun onDestroyView() {
