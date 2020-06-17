@@ -8,6 +8,10 @@ import com.android254.droidconKE2020.home.domain.Promotion
 import com.android254.droidconKE2020.home.domain.Session
 import com.android254.droidconKE2020.home.domain.Sponsor
 import com.android254.droidconKE2020.home.repositories.FakeSpeakerRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val promotionRepository: FakePromotionRepository,
@@ -17,12 +21,15 @@ class HomeViewModel(
     private val organizerRepository: FakeOrganizerRepository
 ) : ViewModel() {
 
+    private var viewModelJob = Job()
+    private val homeViewModelScope = CoroutineScope(viewModelJob + Dispatchers.IO)
+
     /**
      * Promotion stuff
      * */
     val activePromo get() = promotionRepository.activePromo
 
-    fun checkForNewPromo() {
+    fun checkForNewPromo() = homeViewModelScope.launch {
         promotionRepository.checkForAvailablePromotions()
     }
 
@@ -37,7 +44,7 @@ class HomeViewModel(
      * */
     val sessionList get() = sessionRepository.sessions
 
-    fun retrieveSessionList() {
+    fun retrieveSessionList() = homeViewModelScope.launch {
         sessionRepository.refreshSessions()
     }
 
@@ -46,7 +53,7 @@ class HomeViewModel(
      * */
     val keynoteSpeaker get() = speakerRepository.keynoteSpeaker
     val speakerList get() = speakerRepository.sessionSpeakers
-    fun retrieveSpeakerList() {
+    fun retrieveSpeakerList() = homeViewModelScope.launch {
         speakerRepository.refreshSpeakers()
     }
 
@@ -62,7 +69,7 @@ class HomeViewModel(
         )
 
     val sponsors get() = sponsorRepository.sponsors
-    fun retrieveSponsors() {
+    fun retrieveSponsors() = homeViewModelScope.launch {
         sponsorRepository.refreshSponsors()
     }
 
@@ -71,17 +78,25 @@ class HomeViewModel(
      * */
     val organizerList get() = organizerRepository.organizers
 
-    fun retrieveOrganizerList() {
+    fun retrieveOrganizerList() = homeViewModelScope.launch {
         organizerRepository.refreshOrganizers()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
     }
 
 }
 
 
 class FakePromotionRepository {
+    private var repositoryJob = Job()
+    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
+
     val activePromo = MutableLiveData<Promotion>()
 
-    fun checkForAvailablePromotions() {
+    fun checkForAvailablePromotions() = repositoryScope.launch {
         val dummyImgResource = "${R.drawable.black_friday_twitter}"
         val dummyWebUrl = "https://mookh.com/event/droidconke2020/"
         activePromo.postValue(Promotion(dummyImgResource, dummyWebUrl, 0))
@@ -89,10 +104,13 @@ class FakePromotionRepository {
 }
 
 class FakeSessionRepository {
+    private var repositoryJob = Job()
+    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
+
     private val db = mutableListOf<Session>()
     val sessions = MutableLiveData<List<Session>>()
 
-    fun refreshSessions() {
+    fun refreshSessions() = repositoryScope.launch {
         db.clear()
 
         for (i in 0 until 10) {
@@ -111,11 +129,13 @@ class FakeSessionRepository {
 }
 
 class FakeSponsorRepository {
-    private val db = mutableListOf<Sponsor>()
+    private var repositoryJob = Job()
+    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
 
+    private val db = mutableListOf<Sponsor>()
     val sponsors = MutableLiveData<List<Sponsor>>()
 
-    fun refreshSponsors() {
+    fun refreshSponsors() = repositoryScope.launch {
         db.clear()
         db.addAll(
             listOf(
@@ -163,11 +183,13 @@ class FakeSponsorRepository {
 }
 
 class FakeOrganizerRepository {
-    private val db = mutableListOf<Organizer>()
+    private var repositoryJob = Job()
+    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
 
+    private val db = mutableListOf<Organizer>()
     val organizers = MutableLiveData<List<Organizer>>()
 
-    fun refreshOrganizers() {
+    fun refreshOrganizers() = repositoryScope.launch {
         db.clear()
         for (i in 0 until 10) {
             db.add(Organizer(imageUrl = ""))

@@ -111,12 +111,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
 
         // Check for new promos after every minute
-        CoroutineScope(Dispatchers.IO).launch {
-            while (true) {
-                homeViewModel.checkForNewPromo()
-                delay(60 * 1000)
-            }
-        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            while (true) {
+//                homeViewModel.checkForNewPromo()
+//                delay(60 * 1000)
+//            }
+//        }
     }
 
     private fun showCallForSpeakersCard() {
@@ -129,7 +129,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun showKeynoteInfoCard() {
         homeViewModel.retrieveSpeakerList()
 
-        homeViewModel.keynoteSpeaker.observe(viewLifecycleOwner, Observer { keynoteSpeaker ->
+        /*homeViewModel.keynoteSpeaker.observe(viewLifecycleOwner, Observer { keynoteSpeaker ->
             if (keynoteSpeaker == null) {
                 // ToDo: Show shimmer effect. No need to hide since this will always be available
             } else {
@@ -145,13 +145,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     launchBrowser(homeViewModel.callForSpeakerUrl)
                 }
             }
-        })
+        })*/
     }
 
     private fun showSessionsList() {
+        homeViewModel.retrieveSessionList()
         binding.viewSessionsBtn.setOnClickListener { viewAllSessionsClicked() }
 
-        val adapter = SessionAdapter()
+        /*val adapter = SessionAdapter()
         binding.sessionsList.adapter = adapter
         binding.sessionsList.addItemDecoration(HorizontalSpaceDecoration(20))
 
@@ -166,15 +167,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 binding.sessionCountChip.text = totalSessions
                 adapter.updateData(sessions)
             }
-        })
-
-        homeViewModel.retrieveSessionList()
+        })*/
     }
 
     private fun showSpeakersList() {
+        homeViewModel.retrieveSpeakerList()
         binding.viewSpeakersBtn.setOnClickListener { viewAllSpeakersClicked() }
 
-        val onSpeakerClicked: (Speaker) -> Unit = { onSpeakerClicked(it.id) }
+       /* val onSpeakerClicked: (Speaker) -> Unit = { onSpeakerClicked(it.id) }
         val adapter = SpeakerAdapter(onSpeakerClicked)
         binding.speakersList.adapter = adapter
         binding.speakersList.addItemDecoration(HorizontalSpaceDecoration(30))
@@ -191,13 +191,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 binding.speakersCountChip.text = totalSpeakers
                 adapter.updateData(speakers)
             }
-        })
-
-        homeViewModel.retrieveSpeakerList()
+        })*/
     }
 
     private fun showSponsors() {
-        binding.tvBecomeSponsor.setOnClickListener {
+        homeViewModel.retrieveSponsors()
+
+      /*  binding.tvBecomeSponsor.setOnClickListener {
             sendEmail(homeViewModel.becomeSponsorEmails, homeViewModel.becomeSponsorSubject)
         }
 
@@ -230,13 +230,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 goldAdapter.submitList(goldSponsors)
                 otherAdapter.submitList(otherSponsors)
             }
-        })
-        homeViewModel.retrieveSponsors()
+        })*/
     }
 
     private fun showOrganizers() {
+        homeViewModel.retrieveOrganizerList()
 
-        val adapter = OrganizerAdapter()
+     /*   val adapter = OrganizerAdapter()
         binding.organizersList.adapter = adapter
 
         homeViewModel.organizerList.observe(viewLifecycleOwner, Observer { organizers ->
@@ -245,9 +245,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             } else {
                 adapter.updateData(organizers)
             }
-        })
-
-        homeViewModel.retrieveOrganizerList()
+        })*/
     }
 
     override fun onDestroyView() {
