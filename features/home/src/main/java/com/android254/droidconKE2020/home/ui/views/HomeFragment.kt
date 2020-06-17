@@ -15,17 +15,16 @@ import com.android254.droidconKE2020.core.utils.WebPages
 import com.android254.droidconKE2020.home.R
 import com.android254.droidconKE2020.home.databinding.FragmentHomeBinding
 import com.android254.droidconKE2020.home.di.homeViewModels
+import com.android254.droidconKE2020.home.domain.Speaker
 import com.android254.droidconKE2020.home.domain.Sponsor
 import com.android254.droidconKE2020.home.ui.adapters.*
 import com.android254.droidconKE2020.home.viewmodel.HomeViewModel
-import com.android254.droidconKE2020.home.domain.Speaker
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -121,30 +120,30 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun showKeynoteInfoCard() {
         homeViewModel.retrieveSpeakerList()
 
-        /*homeViewModel.keynoteSpeaker.observe(viewLifecycleOwner, Observer { keynoteSpeaker ->
+        homeViewModel.keynoteSpeaker.observe(viewLifecycleOwner, Observer { keynoteSpeaker ->
             if (keynoteSpeaker == null) {
                 // ToDo: Show shimmer effect. No need to hide since this will always be available
             } else {
-                binding.keynoteSpeakerImg.also {
-                    it.load(keynoteSpeaker.imageUrl)
-                    it.setOnClickListener { onSpeakerClicked(keynoteSpeaker.id) }
+                binding.keynoteSpeakerImg.apply {
+                    load(keynoteSpeaker.imageUrl)
+                    setOnClickListener { onSpeakerClicked(keynoteSpeaker.id) }
                 }
-                binding.keynoteSpeakerLbl.also {
-                    it.text = keynoteSpeaker.name
-                    it.setOnClickListener { onSpeakerClicked(keynoteSpeaker.id) }
+                binding.keynoteSpeakerLbl.apply {
+                    text = keynoteSpeaker.name
+                    setOnClickListener { onSpeakerClicked(keynoteSpeaker.id) }
                 }
                 binding.keynoteLblBecomeSpeaker.setOnClickListener {
                     launchBrowser(homeViewModel.callForSpeakerUrl)
                 }
             }
-        })*/
+        })
     }
 
     private fun showSessionsList() {
         homeViewModel.retrieveSessionList()
         binding.viewSessionsBtn.setOnClickListener { viewAllSessionsClicked() }
 
-        /*val adapter = SessionAdapter()
+        val adapter = SessionAdapter()
         binding.sessionsList.adapter = adapter
         binding.sessionsList.addItemDecoration(HorizontalSpaceDecoration(20))
 
@@ -159,85 +158,93 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 binding.sessionCountChip.text = totalSessions
                 adapter.updateData(sessions)
             }
-        })*/
+        })
     }
 
     private fun showSpeakersList() {
         homeViewModel.retrieveSpeakerList()
         binding.viewSpeakersBtn.setOnClickListener { viewAllSpeakersClicked() }
 
-        /* val onSpeakerClicked: (Speaker) -> Unit = { onSpeakerClicked(it.id) }
-         val adapter = SpeakerAdapter(onSpeakerClicked)
-         binding.speakersList.adapter = adapter
-         binding.speakersList.addItemDecoration(HorizontalSpaceDecoration(30))
+        val onSpeakerClicked: (Speaker) -> Unit = { onSpeakerClicked(it.id) }
+        val adapter = SpeakerAdapter(onSpeakerClicked)
+        binding.speakersList.adapter = adapter
+        binding.speakersList.addItemDecoration(HorizontalSpaceDecoration(30))
 
-         homeViewModel.speakerList.observe(viewLifecycleOwner, Observer
-         { speakers ->
-             if (speakers == null) {
-                 binding.speakersCountChip.visibility = View.GONE
+        homeViewModel.speakerList.observe(viewLifecycleOwner, Observer { speakers ->
+            if (speakers == null) {
+                binding.speakersCountChip.visibility = View.GONE
 
-                 // ToDo: Show shimmer effect. No need to hide since this will always be available
-             } else {
-                 binding.speakersCountChip.visibility = View.VISIBLE
-                 val totalSpeakers = "+${speakers.size}"
-                 binding.speakersCountChip.text = totalSpeakers
-                 adapter.updateData(speakers)
-             }
-         })*/
+                // ToDo: Show shimmer effect. No need to hide since this will always be available
+            } else {
+                binding.speakersCountChip.visibility = View.VISIBLE
+                val totalSpeakers = "+${speakers.size}"
+                binding.speakersCountChip.text = totalSpeakers
+                adapter.updateData(speakers)
+            }
+        })
     }
 
     private fun showSponsors() {
         homeViewModel.retrieveSponsors()
 
-        /*  binding.tvBecomeSponsor.setOnClickListener {
-              sendEmail(homeViewModel.becomeSponsorEmails, homeViewModel.becomeSponsorSubject)
-          }
+        binding.tvBecomeSponsor.setOnClickListener {
+            sendEmail(homeViewModel.becomeSponsorEmails, homeViewModel.becomeSponsorSubject)
+        }
 
-          val onSponsorClicked: (Sponsor) -> Unit = { launchBrowser(it.website) }
+        val onSponsorClicked: (Sponsor) -> Unit = { launchBrowser(it.website) }
 
-          // ToDo: Merge two adapters to use a single list using MergeAdapter
-          val goldAdapter = GoldSponsorAdapter(onSponsorClicked)
-          binding.rvGoldSponsors.adapter = goldAdapter
-          binding.rvGoldSponsors.layoutManager = FlexboxLayoutManager(requireContext()).also {
-              it.flexDirection = FlexDirection.ROW
-              it.flexWrap = FlexWrap.WRAP
-              it.justifyContent = JustifyContent.SPACE_EVENLY
-          }
+        // Initializing the below layout managers takes forever.
+        // That's why we're spinning a coroutine to avoid lags in the main thread
+        CoroutineScope(Dispatchers.Main).launch {
 
-          val otherAdapter = OtherSponsorAdapter(onSponsorClicked)
-          binding.rvOtherSponsors.adapter = otherAdapter
-          binding.rvOtherSponsors.layoutManager = FlexboxLayoutManager(requireContext()).also {
-              it.flexDirection = FlexDirection.ROW
-              it.flexWrap = FlexWrap.WRAP
-              it.justifyContent = JustifyContent.SPACE_EVENLY
-          }
+            // ToDo: Merge two adapters to use a single list using MergeAdapter
+            val goldAdapter = GoldSponsorAdapter(onSponsorClicked)
+            binding.rvGoldSponsors.adapter = goldAdapter
+            binding.rvGoldSponsors.layoutManager =
+                FlexboxLayoutManager(requireContext()).apply {
+                    flexDirection = FlexDirection.ROW
+                    flexWrap = FlexWrap.WRAP
+                    justifyContent = JustifyContent.SPACE_EVENLY
+                }
 
-          homeViewModel.sponsors.observe(viewLifecycleOwner, Observer { sponsors ->
-              sponsors?.let {
-                  val goldSponsors = mutableListOf<Sponsor>()
-                  val otherSponsors = mutableListOf<Sponsor>()
+            val otherAdapter = OtherSponsorAdapter(onSponsorClicked)
+            binding.rvOtherSponsors.adapter = otherAdapter
+            binding.rvOtherSponsors.layoutManager =
+                FlexboxLayoutManager(requireContext()).apply {
+                    flexDirection = FlexDirection.ROW
+                    flexWrap = FlexWrap.WRAP
+                    justifyContent = JustifyContent.SPACE_EVENLY
+                }
 
-                  sponsors.forEach { if (it.isGold) goldSponsors.add(it) else otherSponsors.add(it) }
+            homeViewModel.sponsors.observe(viewLifecycleOwner, Observer { sponsors ->
+                sponsors?.let {
+                    val goldSponsors = mutableListOf<Sponsor>()
+                    val otherSponsors = mutableListOf<Sponsor>()
 
-                  goldAdapter.submitList(goldSponsors)
-                  otherAdapter.submitList(otherSponsors)
-              }
-          })*/
+                    sponsors.forEach {
+                        if (it.isGold) goldSponsors.add(it) else otherSponsors.add(it)
+                    }
+
+                    goldAdapter.submitList(goldSponsors)
+                    otherAdapter.submitList(otherSponsors)
+                }
+            })
+        }
     }
 
     private fun showOrganizers() {
         homeViewModel.retrieveOrganizerList()
 
-        /*   val adapter = OrganizerAdapter()
-           binding.organizersList.adapter = adapter
+        val adapter = OrganizerAdapter()
+        binding.organizersList.adapter = adapter
 
-           homeViewModel.organizerList.observe(viewLifecycleOwner, Observer { organizers ->
-               if (organizers == null) {
-                   // ToDo: Show shimmer effect. No need to hide since this will always be available
-               } else {
-                   adapter.updateData(organizers)
-               }
-           })*/
+        homeViewModel.organizerList.observe(viewLifecycleOwner, Observer { organizers ->
+            if (organizers == null) {
+                // ToDo: Show shimmer effect. No need to hide since this will always be available
+            } else {
+                adapter.updateData(organizers)
+            }
+        })
     }
 
     override fun onDestroyView() {
