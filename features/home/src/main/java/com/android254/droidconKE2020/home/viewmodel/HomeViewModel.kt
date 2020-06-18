@@ -98,7 +98,7 @@ class FakePromotionRepository {
         while (true) {
             val dummyImgResource = "${R.drawable.black_friday_twitter}"
             val dummyWebUrl = "https://mookh.com/event/droidconke2020/"
-//            activePromo.postValue(Promotion(dummyImgResource, dummyWebUrl, 0))
+            activePromo.postValue(Promotion(dummyImgResource, dummyWebUrl, 0))
 
             delay(60 * 1000)
         }
