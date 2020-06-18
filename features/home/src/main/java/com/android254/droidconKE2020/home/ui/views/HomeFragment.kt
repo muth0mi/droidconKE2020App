@@ -191,21 +191,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // ToDo: Merge two adapters to use a single list using MergeAdapter
         val goldAdapter = GoldSponsorAdapter(onSponsorClicked)
         binding.rvGoldSponsors.adapter = goldAdapter
-        binding.rvGoldSponsors.layoutManager =
-            FlexboxLayoutManager(requireContext()).apply {
-                flexDirection = FlexDirection.ROW
-                flexWrap = FlexWrap.WRAP
-                justifyContent = JustifyContent.SPACE_EVENLY
-            }
+        binding.rvGoldSponsors.layoutManager = FlexboxLayoutManager(requireContext()).apply {
+            flexDirection = FlexDirection.ROW
+            flexWrap = FlexWrap.WRAP
+            justifyContent = JustifyContent.SPACE_EVENLY
+        }
 
         val otherAdapter = OtherSponsorAdapter(onSponsorClicked)
         binding.rvOtherSponsors.adapter = otherAdapter
-        binding.rvOtherSponsors.layoutManager =
-            FlexboxLayoutManager(requireContext()).apply {
-                flexDirection = FlexDirection.ROW
-                flexWrap = FlexWrap.WRAP
-                justifyContent = JustifyContent.SPACE_EVENLY
-            }
+        binding.rvOtherSponsors.layoutManager = FlexboxLayoutManager(requireContext()).apply {
+            flexDirection = FlexDirection.ROW
+            flexWrap = FlexWrap.WRAP
+            justifyContent = JustifyContent.SPACE_EVENLY
+        }
 
         homeViewModel.goldSponsors.observe(viewLifecycleOwner, Observer { sponsors ->
             sponsors?.let { goldAdapter.submitList(it) }
@@ -223,10 +221,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.organizersList.adapter = adapter
 
         homeViewModel.organizerList.observe(viewLifecycleOwner, Observer { organizers ->
-            if (organizers == null) {
+            if (organizers.isNullOrEmpty()) {
                 // ToDo: Show shimmer effect. No need to hide since this will always be available
             } else {
-                adapter.updateData(organizers)
+                adapter.submitList(organizers)
             }
         })
     }

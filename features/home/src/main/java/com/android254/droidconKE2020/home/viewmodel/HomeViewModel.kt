@@ -201,6 +201,6 @@ class FakeOrganizerRepository {
             db.add(Organizer(imageUrl = ""))
         }
 
-//        organizers.postValue(db)
+        organizers.postValue(db)
     }
 }
