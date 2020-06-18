@@ -23,9 +23,6 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.context.loadKoinModules
@@ -141,6 +138,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun showSessionsList() {
         homeViewModel.retrieveSessionList()
+
         binding.viewSessionsBtn.setOnClickListener { viewAllSessionsClicked() }
 
         val adapter = SessionAdapter()
@@ -162,7 +160,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showSpeakersList() {
-        homeViewModel.retrieveSpeakerList()
         binding.viewSpeakersBtn.setOnClickListener { viewAllSpeakersClicked() }
 
         val onSpeakerClicked: (Speaker) -> Unit = { onSpeakerClicked(it.id) }
@@ -193,43 +190,38 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         val onSponsorClicked: (Sponsor) -> Unit = { launchBrowser(it.website) }
 
-        // Initializing the below layout managers takes forever.
-        // That's why we're spinning a coroutine to avoid lags in the main thread
-        CoroutineScope(Dispatchers.Main).launch {
+        // ToDo: Merge two adapters to use a single list using MergeAdapter
+        val goldAdapter = GoldSponsorAdapter(onSponsorClicked)
+        binding.rvGoldSponsors.adapter = goldAdapter
+        binding.rvGoldSponsors.layoutManager =
+            FlexboxLayoutManager(requireContext()).apply {
+                flexDirection = FlexDirection.ROW
+                flexWrap = FlexWrap.WRAP
+                justifyContent = JustifyContent.SPACE_EVENLY
+            }
 
-            // ToDo: Merge two adapters to use a single list using MergeAdapter
-            val goldAdapter = GoldSponsorAdapter(onSponsorClicked)
-            binding.rvGoldSponsors.adapter = goldAdapter
-            binding.rvGoldSponsors.layoutManager =
-                FlexboxLayoutManager(requireContext()).apply {
-                    flexDirection = FlexDirection.ROW
-                    flexWrap = FlexWrap.WRAP
-                    justifyContent = JustifyContent.SPACE_EVENLY
+        val otherAdapter = OtherSponsorAdapter(onSponsorClicked)
+        binding.rvOtherSponsors.adapter = otherAdapter
+        binding.rvOtherSponsors.layoutManager =
+            FlexboxLayoutManager(requireContext()).apply {
+                flexDirection = FlexDirection.ROW
+                flexWrap = FlexWrap.WRAP
+                justifyContent = JustifyContent.SPACE_EVENLY
+            }
+
+        homeViewModel.sponsors.observe(viewLifecycleOwner, Observer { sponsors ->
+            sponsors?.let {
+                val goldSponsors = mutableListOf<Sponsor>()
+                val otherSponsors = mutableListOf<Sponsor>()
+
+                sponsors.forEach {
+                    if (it.isGold) goldSponsors.add(it) else otherSponsors.add(it)
                 }
 
-            val otherAdapter = OtherSponsorAdapter(onSponsorClicked)
-            binding.rvOtherSponsors.adapter = otherAdapter
-            binding.rvOtherSponsors.layoutManager =
-                FlexboxLayoutManager(requireContext()).apply {
-                    flexDirection = FlexDirection.ROW
-                    flexWrap = FlexWrap.WRAP
-                    justifyContent = JustifyContent.SPACE_EVENLY
-                }
-
-            homeViewModel.sponsors.observe(viewLifecycleOwner, Observer { sponsors ->
-                sponsors?.let {
-                    val goldSponsors = mutableListOf<Sponsor>()
-                    val otherSponsors = mutableListOf<Sponsor>()
-
-                    sponsors.forEach {
-                        if (it.isGold) goldSponsors.add(it) else otherSponsors.add(it)
-                    }
-
-                    goldAdapter.submitList(goldSponsors)
-                    otherAdapter.submitList(otherSponsors)
-                }
-            })
-        }
+                goldAdapter.submitList(goldSponsors)
+                otherAdapter.submitList(otherSponsors)
+            }
+        })
     }
 
     private fun showOrganizers() {

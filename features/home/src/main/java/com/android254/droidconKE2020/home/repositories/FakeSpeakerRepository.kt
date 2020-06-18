@@ -4,6 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import com.android254.droidconKE2020.home.domain.SocialMedia
 import com.android254.droidconKE2020.home.domain.Speaker
 import com.github.javafaker.Faker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FakeSpeakerRepository {
     private val db = mutableListOf<Speaker>()
@@ -32,7 +35,7 @@ class FakeSpeakerRepository {
         sessionSpeakers.postValue(searchedDb)
     }
 
-    fun refreshSpeakers() {
+    fun refreshSpeakers() = CoroutineScope(Dispatchers.IO).launch {
         db.clear()
 
         val faker = Faker()

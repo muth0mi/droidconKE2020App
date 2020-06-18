@@ -18,22 +18,18 @@ class HomeViewModel(
     private val organizerRepository: FakeOrganizerRepository
 ) : ViewModel() {
 
-    private var viewModelJob = Job()
-    private val homeViewModelScope = CoroutineScope(viewModelJob + Dispatchers.IO)
+    /**
+     * Job for all coroutines started by this ViewModel. Cancelling it will cancel child coroutines*/
+    private val viewModelJob = SupervisorJob()
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     /**
      * Promotion stuff
      * */
     val activePromo get() = promotionRepository.activePromo
 
-    fun checkForNewPromo() = homeViewModelScope.launch {
-        // Check for new promos after every minute
-        CoroutineScope(Dispatchers.IO).launch {
-            while (true) {
-                promotionRepository.checkForAvailablePromotions()
-                delay(60 * 1000)
-            }
-        }
+    fun checkForNewPromo() = viewModelScope.launch {
+        promotionRepository.checkForAvailablePromotions()
     }
 
     /**
@@ -47,7 +43,7 @@ class HomeViewModel(
      * */
     val sessionList get() = sessionRepository.sessions
 
-    fun retrieveSessionList() = homeViewModelScope.launch {
+    fun retrieveSessionList() = viewModelScope.launch {
         sessionRepository.refreshSessions()
     }
 
@@ -56,7 +52,7 @@ class HomeViewModel(
      * */
     val keynoteSpeaker get() = speakerRepository.keynoteSpeaker
     val speakerList get() = speakerRepository.sessionSpeakers
-    fun retrieveSpeakerList() = homeViewModelScope.launch {
+    fun retrieveSpeakerList() = viewModelScope.launch {
         speakerRepository.refreshSpeakers()
     }
 
@@ -72,7 +68,7 @@ class HomeViewModel(
         )
 
     val sponsors get() = sponsorRepository.sponsors
-    fun retrieveSponsors() = homeViewModelScope.launch {
+    fun retrieveSponsors() = viewModelScope.launch {
         sponsorRepository.refreshSponsors()
     }
 
@@ -81,7 +77,7 @@ class HomeViewModel(
      * */
     val organizerList get() = organizerRepository.organizers
 
-    fun retrieveOrganizerList() = homeViewModelScope.launch {
+    fun retrieveOrganizerList() = viewModelScope.launch {
         organizerRepository.refreshOrganizers()
     }
 
@@ -94,26 +90,25 @@ class HomeViewModel(
 
 
 class FakePromotionRepository {
-    private var repositoryJob = Job()
-    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
-
     val activePromo = MutableLiveData<Promotion>()
 
-    fun checkForAvailablePromotions() = repositoryScope.launch {
-        val dummyImgResource = "${R.drawable.black_friday_twitter}"
-        val dummyWebUrl = "https://mookh.com/event/droidconke2020/"
-        activePromo.postValue(Promotion(dummyImgResource, dummyWebUrl, 0))
+    fun checkForAvailablePromotions() = CoroutineScope(Dispatchers.IO).launch {
+        // Check for new promos after every minute
+        while (true) {
+            val dummyImgResource = "${R.drawable.black_friday_twitter}"
+            val dummyWebUrl = "https://mookh.com/event/droidconke2020/"
+            activePromo.postValue(Promotion(dummyImgResource, dummyWebUrl, 0))
+
+            delay(60 * 1000)
+        }
     }
 }
 
 class FakeSessionRepository {
-    private var repositoryJob = Job()
-    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
-
     private val db = mutableListOf<Session>()
     val sessions = MutableLiveData<List<Session>>()
 
-    fun refreshSessions() = repositoryScope.launch {
+    fun refreshSessions() = CoroutineScope(Dispatchers.IO).launch {
         db.clear()
 
         for (i in 0 until 10) {
@@ -127,19 +122,18 @@ class FakeSessionRepository {
                 )
             )
         }
+
         sessions.postValue(db)
     }
 }
 
 class FakeSponsorRepository {
-    private var repositoryJob = Job()
-    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
-
     private val db = mutableListOf<Sponsor>()
     val sponsors = MutableLiveData<List<Sponsor>>()
 
-    fun refreshSponsors() = repositoryScope.launch {
+    fun refreshSponsors() = CoroutineScope(Dispatchers.IO).launch {
         db.clear()
+
         db.addAll(
             listOf(
                 Sponsor(
@@ -181,22 +175,22 @@ class FakeSponsorRepository {
                 )
             )
         )
+
         sponsors.postValue(db)
     }
 }
 
 class FakeOrganizerRepository {
-    private var repositoryJob = Job()
-    private val repositoryScope = CoroutineScope(repositoryJob + Dispatchers.IO)
-
     private val db = mutableListOf<Organizer>()
     val organizers = MutableLiveData<List<Organizer>>()
 
-    fun refreshOrganizers() = repositoryScope.launch {
+    fun refreshOrganizers() = CoroutineScope(Dispatchers.IO).launch {
         db.clear()
+
         for (i in 0 until 10) {
             db.add(Organizer(imageUrl = ""))
         }
+
         organizers.postValue(db)
     }
 }
