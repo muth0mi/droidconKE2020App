@@ -146,15 +146,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.sessionsList.addItemDecoration(HorizontalSpaceDecoration(20))
 
         homeViewModel.sessionList.observe(viewLifecycleOwner, Observer { sessions ->
-            if (sessions == null) {
-                binding.sessionCountChip.visibility = View.GONE
+            val visibility = if (sessions.isNullOrEmpty()) View.GONE else View.VISIBLE
+            binding.sessionCountChip.visibility = visibility
 
+            if (sessions.isNullOrEmpty()) {
                 // ToDo: Show shimmer effect. No need to hide since this will always be available
             } else {
-                binding.sessionCountChip.visibility = View.VISIBLE
-                val totalSessions = "+${sessions.size}"
-                binding.sessionCountChip.text = totalSessions
-                adapter.updateData(sessions)
+                adapter.submitList(sessions)
+                binding.sessionCountChip.text = adapter.currentList.size.toString()
             }
         })
     }
@@ -168,14 +167,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.speakersList.addItemDecoration(HorizontalSpaceDecoration(30))
 
         homeViewModel.speakerList.observe(viewLifecycleOwner, Observer { speakers ->
+            val visibility = if (speakers.isNullOrEmpty()) View.GONE else View.VISIBLE
+            binding.speakersCountChip.visibility = visibility
+
             if (speakers.isNullOrEmpty()) {
-                binding.speakersCountChip.visibility = View.GONE
                 // ToDo: Show shimmer effect. No need to hide since this will always be available
             } else {
-                binding.speakersCountChip.visibility = View.VISIBLE
-                val totalSpeakers = "+${speakers.size}"
-                binding.speakersCountChip.text = totalSpeakers
                 adapter.submitList(speakers)
+                binding.speakersCountChip.text = adapter.currentList.size.toString()
             }
         })
     }

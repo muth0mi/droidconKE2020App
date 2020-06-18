@@ -22,7 +22,7 @@ class SpeakerAdapter(private var onSpeakerClickedEvent: (Speaker) -> Unit) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val speaker = getItem(position)
-        (holder as SpeakerViewHolder).bindSpeaker(speaker)
+        speaker?.let { (holder as SpeakerViewHolder).bindSpeaker(it) }
     }
 
     inner class SpeakerViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {

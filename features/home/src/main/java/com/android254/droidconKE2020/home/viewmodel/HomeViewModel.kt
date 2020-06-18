@@ -123,7 +123,7 @@ class FakeSessionRepository {
             )
         }
 
-//        sessions.postValue(db)
+        sessions.postValue(db)
     }
 }
 
