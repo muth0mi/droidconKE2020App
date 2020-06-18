@@ -168,15 +168,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.speakersList.addItemDecoration(HorizontalSpaceDecoration(30))
 
         homeViewModel.speakerList.observe(viewLifecycleOwner, Observer { speakers ->
-            if (speakers == null) {
+            if (speakers.isNullOrEmpty()) {
                 binding.speakersCountChip.visibility = View.GONE
-
                 // ToDo: Show shimmer effect. No need to hide since this will always be available
             } else {
                 binding.speakersCountChip.visibility = View.VISIBLE
                 val totalSpeakers = "+${speakers.size}"
                 binding.speakersCountChip.text = totalSpeakers
-                adapter.updateData(speakers)
+                adapter.submitList(speakers)
             }
         })
     }
