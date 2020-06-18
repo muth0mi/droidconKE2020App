@@ -24,7 +24,7 @@ class GoldSponsorAdapter(private var onSponsorClickedEvent: (Sponsor) -> Unit) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val sponsor = getItem(position)
-        (holder as SponsorViewHolder).bind(sponsor)
+        sponsor?.let { (holder as SponsorViewHolder).bind(it) }
     }
 
 

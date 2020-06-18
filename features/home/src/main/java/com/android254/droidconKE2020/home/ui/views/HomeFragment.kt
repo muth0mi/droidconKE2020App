@@ -207,18 +207,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 justifyContent = JustifyContent.SPACE_EVENLY
             }
 
-        homeViewModel.sponsors.observe(viewLifecycleOwner, Observer { sponsors ->
-            sponsors?.let {
-                val goldSponsors = mutableListOf<Sponsor>()
-                val otherSponsors = mutableListOf<Sponsor>()
+        homeViewModel.goldSponsors.observe(viewLifecycleOwner, Observer { sponsors ->
+            sponsors?.let { goldAdapter.submitList(it) }
+        })
 
-                sponsors.forEach {
-                    if (it.isGold) goldSponsors.add(it) else otherSponsors.add(it)
-                }
-
-                goldAdapter.submitList(goldSponsors)
-                otherAdapter.submitList(otherSponsors)
-            }
+        homeViewModel.otherSponsors.observe(viewLifecycleOwner, Observer { sponsors ->
+            sponsors?.let { otherAdapter.submitList(it) }
         })
     }
 

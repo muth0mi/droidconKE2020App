@@ -67,7 +67,8 @@ class HomeViewModel(
             "another@droidcon.co.ke"
         )
 
-    val sponsors get() = sponsorRepository.sponsors
+    val goldSponsors get() = sponsorRepository.goldSponsors
+    val otherSponsors get() = sponsorRepository.otherSponsors
     fun retrieveSponsors() = viewModelScope.launch {
         sponsorRepository.refreshSponsors()
     }
@@ -129,7 +130,8 @@ class FakeSessionRepository {
 
 class FakeSponsorRepository {
     private val db = mutableListOf<Sponsor>()
-    val sponsors = MutableLiveData<List<Sponsor>>()
+    val goldSponsors = MutableLiveData<List<Sponsor>>()
+    val otherSponsors = MutableLiveData<List<Sponsor>>()
 
     fun refreshSponsors() = CoroutineScope(Dispatchers.IO).launch {
         db.clear()
@@ -176,7 +178,15 @@ class FakeSponsorRepository {
             )
         )
 
-//        sponsors.postValue(db)
+        val gold = mutableListOf<Sponsor>()
+        val other = mutableListOf<Sponsor>()
+
+        db.forEach {
+            if (it.isGold) gold.add(it) else other.add(it)
+        }
+
+        goldSponsors.postValue(gold)
+        otherSponsors.postValue(other)
     }
 }
 
